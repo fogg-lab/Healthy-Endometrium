@@ -2,12 +2,11 @@ import argparse
 import os
 import shutil
 from time import sleep
-import urllib3
+import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 PROGRESS_INTERVAL = 50
 URLS_LIST_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "dataset_urls.txt")
-HTTP = urllib3.PoolManager()
 NUM_DOWNLOAD_RETRIES = 6
 MAX_WORKERS = 10
 
@@ -16,17 +15,23 @@ def download_file(url, download_dir):
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     success = False
     for attempt in range(NUM_DOWNLOAD_RETRIES):
-        with HTTP.request('GET', url, preload_content=False) as r, open(file_path, "wb") as f:
-            if r.status == 200:
-                shutil.copyfileobj(r, f)
-                success = True
-        r.release_conn()
-        if success:
-            break
+        try:
+            with requests.get(url, stream=True) as r:
+                if r.status_code == 200:
+                    with open(file_path, "wb") as f:
+                        shutil.copyfileobj(r.raw, f)
+                    success = True
+                else:
+                    print(f"Error downloading {url}: Status code {r.status_code}")
+        except Exception as e:
+            print(f"Error: {e}")
         # Download request failed, wait a sec and try again
         sleep(0.25 * (attempt + 1))
     if not success:
         print(f"Error downloading {url}: Status code {r.status}")
+    else:
+        print("SUCCESS")
+        os.remove(file_path)
     return success
 
 def download_directory(download_dir):
