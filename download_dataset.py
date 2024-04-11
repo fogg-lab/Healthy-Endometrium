@@ -29,9 +29,6 @@ def download_file(url, download_dir):
         sleep(0.25 * (attempt + 1))
     if not success:
         print(f"Error downloading {url}: Status code {r.status}")
-    else:
-        print("SUCCESS")
-        os.remove(file_path)
     return success
 
 def download_directory(download_dir):
