@@ -3,7 +3,7 @@
 Data retrieval script - download and extract the dataset.
 
 ### Prerequisites
-- [Python 3.7 or higher](https://www.python.org/downloads/)
+- [Python 3.9 or higher](https://www.python.org/downloads/)
 - [git](https://git-scm.com/)
 - [requests](https://pypi.org/project/requests/)
 
